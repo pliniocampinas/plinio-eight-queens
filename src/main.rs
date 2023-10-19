@@ -149,11 +149,56 @@ fn print_table(&table: &[u8; 64]) {
 
 #[cfg(test)]
 #[test]
-fn is_valid_move_works() {
+fn is_valid_move_works_empty() {
     let [ line, col ] = [ 4 , 6 ];
     let moves_stack: [Move; 8] = [Move { line: 0, col: 0 }; 8];
     let is_valid = is_valid_move(&moves_stack, line, col);
     assert!(is_valid == true);
+}
+
+#[test]
+fn is_valid_move_with_same_line_should_be_invalid() {
+    let mut moves_stack: [Move; 8] = [Move { line: 0, col: 0 }; 8];
+    moves_stack[0].line = 1;
+    moves_stack[0].col = 1;
+
+    let [ line, col ] = [ 1 , 6 ];
+    let is_valid = is_valid_move(&moves_stack, line, col);
+    assert!(is_valid == false);
+}
+
+#[test]
+fn is_valid_move_with_same_column_should_be_invalid() {
+    let mut moves_stack: [Move; 8] = [Move { line: 0, col: 0 }; 8];
+    moves_stack[0].line = 1;
+    moves_stack[0].col = 1;
+
+    let [ line, col ] = [ 3 , 1 ];
+    let is_valid = is_valid_move(&moves_stack, line, col);
+    assert!(is_valid == false);
+}
+
+#[test]
+fn is_valid_move_with_same_diagonal_should_be_invalid() {
+    let mut moves_stack: [Move; 8] = [Move { line: 0, col: 0 }; 8];
+    moves_stack[0].line = 3;
+    moves_stack[0].col = 3;
+
+    let [ line, col ] = [ 5 , 5 ];
+    let is_valid = is_valid_move(&moves_stack, line, col);
+    assert!(is_valid == false);
+
+    let [ line, col ] = [ 2 , 2 ];
+    let is_valid = is_valid_move(&moves_stack, line, col);
+    assert!(is_valid == false);
+
+    let [ line, col ] = [ 2 , 4 ];
+    let is_valid = is_valid_move(&moves_stack, line, col);
+    assert!(is_valid == false);
+
+    let [ line, col ] = [ 4 , 4 ];
+    let is_valid = is_valid_move(&moves_stack, line, col);
+    assert!(is_valid == false);
 }
 
 #[test]
