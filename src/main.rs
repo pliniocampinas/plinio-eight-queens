@@ -18,9 +18,22 @@ fn solve_table(table: & mut [u8; 64]) {
     let mut moves_stack: [Move; 8] = [Move { line: 0, col: 0 }; 8];
     let mut stack_index: usize = 0;
 
-    while stack_index < 8 {
+    let mut interation: u64 = 0;
+    let max_iterations: u64 = 1_000_000;
+
+    let mut last_invalid_path = Move {
+        line: 0,
+        col: 0
+    };
+
+    loop {
+        let previous_stack_index = stack_index;
         for line in 1..9 {
             for col in 1..9 {
+                if last_invalid_path.line == line && last_invalid_path.col == col {
+                    continue;
+                }
+
                 if is_valid_move(&moves_stack, line, col) {
                     moves_stack[stack_index] = Move {
                         line: line,
@@ -30,10 +43,31 @@ fn solve_table(table: & mut [u8; 64]) {
                 }
             }
         }
+
+        if stack_index >= 8 {
+            break;
+        }
+
+        if previous_stack_index == stack_index {
+            last_invalid_path.line = moves_stack[stack_index].line;
+            last_invalid_path.col = moves_stack[stack_index].col;
+            moves_stack[stack_index].line = 0;
+            moves_stack[stack_index].col = 0;
+            stack_index-=1;
+        }
+
+        interation+=1;
+        if interation >= max_iterations {
+            println!("Max iterations - breaking with stack size: {}", stack_index);
+            break;
+        }
     }
 
 
     for elem in moves_stack {
+        if elem.line == 0 || elem.col == 0 {
+            continue;
+        }
         println!("setting move line: {} col: {}", elem.line, elem.col);
         set_table_value(table, elem.line, elem.col, 1);
     }
@@ -47,7 +81,15 @@ fn is_valid_move(moves_stack: &[Move; 8], line: usize, col: usize) -> bool {
         panic!("Invalid column value");
     }
 
+    // An integer that represents diagonal lines
+    let diagonal_to_right: i32 = line as i32 - col as i32;
+    let diagonal_to_left: i32 = col as i32 + line as i32;
+
     for elem in moves_stack {
+        if elem.line == 0 || elem.col == 0 {
+            continue;
+        }
+
         // Validate lines.
         if elem.line == line {
             return false;
@@ -62,15 +104,19 @@ fn is_valid_move(moves_stack: &[Move; 8], line: usize, col: usize) -> bool {
         if elem.col == line {
             return false;
         }
-        // TODO: Validate diagonal.
+
+        let previous_move_diagonal_to_right: i32 = elem.line as i32 - elem.col as i32;
+        let previous_move_diagonal_to_left: i32 = elem.col as i32 + elem.line as i32;
+
+        if previous_move_diagonal_to_right == diagonal_to_right {
+            return false;
+        }
+        if previous_move_diagonal_to_left == diagonal_to_left {
+            return false;
+        }
     }
 
     return true;
-}
-
-fn get_table_value(&table: &[u8; 64], line: usize, col: usize) -> u8 {
-    let index = (line * col) - 1;
-    return *table.get(index).unwrap();
 }
 
 fn set_table_value(table: & mut [u8; 64], line: usize, col: usize, value: u8) {
@@ -102,15 +148,6 @@ fn print_table(&table: &[u8; 64]) {
 }
 
 #[cfg(test)]
-#[test]
-fn set_and_get_table_works() {
-    let mut table: [u8; 64] = [0; 64];
-    let [ line, col ] = [ 4 , 6 ];
-    set_table_value(&mut table, line, col, 1);
-    let cell_value = get_table_value(&table, line, col);
-    assert!(cell_value == 1);
-}
-
 #[test]
 fn is_valid_move_works() {
     let [ line, col ] = [ 4 , 6 ];
