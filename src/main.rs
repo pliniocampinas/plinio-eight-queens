@@ -9,7 +9,9 @@ fn main() {
 
     let mut table: [u8; 64] = [0; 64];
 
-    solve_table(&mut table);
+    // solve_table(&mut table);
+
+    solve_table2(&mut table);
 
     print_table(&table);
 }
@@ -19,7 +21,7 @@ fn solve_table(table: & mut [u8; 64]) {
     let mut stack_index: usize = 0;
 
     let mut interation: u64 = 0;
-    let max_iterations: u64 = 1_000_000;
+    let max_iterations: u64 = 1_000;
 
     let mut last_invalid_path = Move {
         line: 0,
@@ -71,6 +73,118 @@ fn solve_table(table: & mut [u8; 64]) {
         println!("setting move line: {} col: {}", elem.line, elem.col);
         set_table_value(table, elem.line, elem.col, 1);
     }
+}
+
+// Brute force
+fn solve_table2(table: & mut [u8; 64]) {
+    // '1122334455667788' = 16 digits.
+    // '8888888888888888'
+    let mut index: u128 = 11_23_31_41_51_61_71_81;
+    let mut moves_stack: [Move; 8] = [Move { line: 0, col: 0 }; 8];
+
+    while index < 8888888888888888 {
+        if index % 1_000_00000 == 0 {
+            println!("Tries:{}", index);
+        }
+        let mut moves_stack: [Move; 8] = [Move { line: 0, col: 0 }; 8];
+        let mut stack_index: usize = 0;
+
+        // Extract digits and set moves stack.
+        let mut divisor = 10;
+        let max_divisor = 10 * 8;
+        while divisor < max_divisor {
+            let pair = (index / divisor) % 100;
+
+            moves_stack[stack_index].line = (pair % 100) as usize;
+            moves_stack[stack_index].col = (moves_stack[stack_index].line % 10) as usize;
+
+            stack_index +=1;
+            divisor*= 100;
+        }
+
+        if is_valid_table(&moves_stack) {
+            break;
+        }
+        
+        index+=1;
+    }
+
+    // Extract digits for the winner index set moves stack.
+    let mut stack_index: usize = 0;
+    let mut divisor = 10;
+    let max_divisor = 10 * 8;
+    while divisor < max_divisor {
+        let pair = (index / divisor) % 100;
+
+        moves_stack[stack_index].line = (pair % 100) as usize;
+        moves_stack[stack_index].col = (moves_stack[stack_index].line % 10) as usize;
+
+        stack_index +=1;
+        divisor*= 100;
+    }
+
+
+    for elem in moves_stack {
+        if elem.line == 0 || elem.col == 0 {
+            continue;
+        }
+        println!("setting move line: {} col: {}", elem.line, elem.col);
+        set_table_value(table, elem.line, elem.col, 1);
+    }
+}
+
+
+fn is_valid_table(moves_stack: &[Move; 8]) -> bool {
+    // Get first and validate
+    let first = moves_stack[0];
+
+    // An integer that represents diagonal lines.
+    let diagonal_to_right: i32 = first.line as i32 - first.col as i32;
+    let diagonal_to_left: i32 = first.col as i32 + first.line as i32;
+
+    let mut equals_first = 0;
+    for elem in moves_stack {
+        // If any move is empty, is invalid.
+        if elem.line == 0 || elem.col == 0 {
+            return false;
+        }
+
+        // If move is the first, continue, if repeated, return false.
+        if elem.line == first.line && elem.col == first.col {
+            equals_first += 1;
+            if equals_first > 1 {
+                return false;
+            }
+            continue;
+        }
+
+        // Validate lines.
+        if elem.line == first.line {
+            return false;
+        }
+        if elem.line == first.col {
+            return false;
+        }
+        // Validate columns.
+        if elem.col == first.col {
+            return false;
+        }
+        if elem.col == first.line {
+            return false;
+        }
+
+        let previous_move_diagonal_to_right: i32 = elem.line as i32 - elem.col as i32;
+        let previous_move_diagonal_to_left: i32 = elem.col as i32 + elem.line as i32;
+
+        if previous_move_diagonal_to_right == diagonal_to_right {
+            return false;
+        }
+        if previous_move_diagonal_to_left == diagonal_to_left {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 fn is_valid_move(moves_stack: &[Move; 8], line: usize, col: usize) -> bool {
