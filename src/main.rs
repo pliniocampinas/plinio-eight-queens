@@ -42,10 +42,10 @@ fn solve_and_fill_table(table: & mut [u8; 64]) {
     println!("result_count {}", result_count);
 
     let first_solution = results[0].columns_positions;
-    let mut line = 1;
-    for col in first_solution {
-        set_table_value(table, line, col as usize, 1);
-        line+=1;
+    let mut line_index = 0;
+    for col_index in first_solution {
+        set_table_value(table, line_index + 1, (col_index+1) as usize, 1);
+        line_index+=1;
     }
 }
 
