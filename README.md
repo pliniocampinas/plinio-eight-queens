@@ -3,7 +3,7 @@ Writing an 8 queens solution in rust
 
 ### TODO
 
-[ ] Implement solution.
+[x] Implement solution.
 [ ] Split implementation into a module.
 [ ] Implement a single API endpoint with an HTML returning a single solution.
 [ ] Implement an interactive page requesting multiple solutions solutions.

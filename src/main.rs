@@ -35,11 +35,10 @@ fn main() {
 
 fn solve_and_fill_table(table: & mut [u8; 64]) {
     let mut moves_stack: MovesStack = MovesStack::new();
-    let mut results = [MovesStack::new(); 1];
-    let mut result_count = 0;
-    solve_queens(0, &mut moves_stack, &mut results, &mut result_count);
+    let mut results: Vec<MovesStack> = Vec::new();
+    solve_queens(0, &mut moves_stack, &mut results);
 
-    println!("result_count {}", result_count);
+    println!("result_count {}", results.len());
 
     let first_solution = results[0].columns_positions;
     let mut line_index = 0;
@@ -49,17 +48,17 @@ fn solve_and_fill_table(table: & mut [u8; 64]) {
     }
 }
 
-fn solve_queens(row: isize, moves_stack: &mut MovesStack, results: & mut [MovesStack; 1], solutions_count: &mut usize) {
+fn solve_queens(row: isize, moves_stack: &mut MovesStack, results: &mut Vec<MovesStack>) {
     if row == 8 {
-        results[0] = *moves_stack;
-        *solutions_count+=1;
+        results.push(*moves_stack);
         return;
     }
+
     let mut col = 0;
     while col < 8 {
         moves_stack.push(col);
         if is_valid_move(moves_stack) {
-            solve_queens(row+1, moves_stack, results, solutions_count);
+            solve_queens(row+1, moves_stack, results);
         }
         moves_stack.pop();
 
