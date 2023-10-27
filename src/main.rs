@@ -1,4 +1,5 @@
 mod queens_solver;
+mod templates;
 use queens_solver::{
     MovesStack,
     fill_table,
@@ -6,27 +7,38 @@ use queens_solver::{
 };
 
 use axum::{
-    routing::{get, post},
-    http::StatusCode,
-    // response::IntoResponse,
-    Json, Router,
+    extract::Path,
+    routing::get,
+    http::{header, HeaderMap, StatusCode},
+    response::{Html, IntoResponse},
+    Router,
 };
-use serde::{Deserialize, Serialize};
+use askama::Template;
 use std::net::SocketAddr;
+use templates::MyTemplate;
+
+static THEME_CSS: &str = include_str!("../assets/theme.css");
+
+async fn handle_assets(Path(path): Path<String>) -> impl IntoResponse {
+    let mut headers = HeaderMap::new();
+
+    if path == "theme.css" {
+        headers.insert(header::CONTENT_TYPE, "text/css".parse().unwrap());
+        (StatusCode::OK, headers, THEME_CSS)
+    } else {
+        (StatusCode::NOT_FOUND, headers, "")
+    }
+}
 
 #[tokio::main]
 async fn main() {
-    // initialize tracing
     tracing_subscriber::fmt::init();
 
-    // build our application with a route
     let app = Router::new()
-        // `GET /` goes to `root`
-        .route("/", get(root))
-        // `POST /users` goes to `create_user`
-        .route("/users", post(create_user));
+        .route("/", get(handle_main))
+        .route("/table", get(table))
+        .route("/_assets/*path", get(handle_assets));
 
-    // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     tracing::debug!("listening on {}", addr);
@@ -36,8 +48,7 @@ async fn main() {
         .unwrap();
 }
 
-// basic handler that responds with a static string
-async fn root() -> String {
+async fn table() -> String {
     let mut table: [u8; 64] = [0; 64];
 
     solve_and_fill_table(&mut table);
@@ -45,33 +56,10 @@ async fn root() -> String {
     print_table(&table)
 }
 
-async fn create_user(
-    // this argument tells axum to parse the request body
-    // as JSON into a `CreateUser` type
-    Json(payload): Json<CreateUser>,
-) -> (StatusCode, Json<User>) {
-    // insert your application logic here
-    let user = User {
-        id: 1337,
-        username: payload.username,
-    };
-
-    // this will be converted into a JSON response
-    // with a status code of `201 Created`
-    (StatusCode::CREATED, Json(user))
-}
-
-// the input to our `create_user` handler
-#[derive(Deserialize)]
-struct CreateUser {
-    username: String,
-}
-
-// the output to our `create_user` handler
-#[derive(Serialize)]
-struct User {
-    id: u64,
-    username: String,
+async fn handle_main() -> impl IntoResponse {
+    let template = MyTemplate {};
+    let reply_html = template.render().unwrap();
+    (StatusCode::OK, Html(reply_html).into_response())
 }
 
 fn solve_and_fill_table(table: & mut [u8; 64]) {
