@@ -57,9 +57,13 @@ async fn table() -> String {
 }
 
 async fn handle_main() -> impl IntoResponse {
+    let mut moves_stack: queens_solver::MovesStack = queens_solver::MovesStack::new();
+    let mut results: Vec<MovesStack> = Vec::new();
+    solve_queens(0, &mut moves_stack, &mut results);
+
     let template = TableSolution {
         header_text: String::from("Eight Queens"),
-        columns_positions: [0;8]
+        columns_positions: results[0].columns_positions
     };
     let reply_html = template.render().unwrap();
     (StatusCode::OK, Html(reply_html).into_response())

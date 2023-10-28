@@ -12,8 +12,13 @@
   <div class="table">
     {% for row in 0..8 %}
     <div class="row">
-      {% for col in columns_positions %}
-      <div class="col">{{ col }}</div>
+      {% for col in 0..8 %}
+      <div class="col">
+        {% let has_queen = (columns_positions[row] + 0) == col %}
+        {% if has_queen -%}
+          Q
+        {%- endif -%}
+      </div>
       {% endfor %}
     </div>
     {% endfor %}
