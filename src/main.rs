@@ -18,6 +18,7 @@ use std::net::SocketAddr;
 use templates::TableSolution;
 
 static THEME_CSS: &str = include_str!("../assets/theme.css");
+static QUEEN_ICON: &str = include_str!("../assets/chess-queen.svg");
 
 async fn handle_assets(Path(path): Path<String>) -> impl IntoResponse {
     let mut headers = HeaderMap::new();
@@ -25,6 +26,9 @@ async fn handle_assets(Path(path): Path<String>) -> impl IntoResponse {
     if path == "theme.css" {
         headers.insert(header::CONTENT_TYPE, "text/css".parse().unwrap());
         (StatusCode::OK, headers, THEME_CSS)
+    } else if path == "chess-queen.svg" {
+        headers.insert(header::CONTENT_TYPE, "image/svg+xml".parse().unwrap());
+        (StatusCode::OK, headers, QUEEN_ICON)
     } else {
         (StatusCode::NOT_FOUND, headers, "")
     }

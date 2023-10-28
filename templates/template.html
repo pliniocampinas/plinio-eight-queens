@@ -7,21 +7,22 @@
 </head>
 
 <body>
-  <h1>{{ header_text }}</h1>
-
-  <div class="table">
-    {% for row in 0..8 %}
-    <div class="row">
-      {% for col in 0..8 %}
-      <div class="col">
-        {% let has_queen = (columns_positions[row] + 0) == col %}
-        {% if has_queen -%}
-          Q
-        {%- endif -%}
+  <div class="app">
+    <h1>{{ header_text }}</h1>
+    <div class="table">
+      {% for row in 0..8 %}
+      <div class="row">
+        {% for col in 0..8 %}
+        <div class="col">
+          {% let has_queen = (columns_positions[row] + 0) == col %}
+          {% if has_queen -%}
+            <img class="queen-icon" src="/_assets/chess-queen.svg" alt="Q">
+          {%- endif -%}
+        </div>
+        {% endfor %}
       </div>
       {% endfor %}
     </div>
-    {% endfor %}
   </div>
 </body>
 
