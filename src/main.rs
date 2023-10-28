@@ -15,7 +15,7 @@ use axum::{
 };
 use askama::Template;
 use std::net::SocketAddr;
-use templates::MyTemplate;
+use templates::TableSolution;
 
 static THEME_CSS: &str = include_str!("../assets/theme.css");
 
@@ -57,7 +57,10 @@ async fn table() -> String {
 }
 
 async fn handle_main() -> impl IntoResponse {
-    let template = MyTemplate {};
+    let template = TableSolution {
+        header_text: String::from("Eight Queens"),
+        columns_positions: [0;8]
+    };
     let reply_html = template.render().unwrap();
     (StatusCode::OK, Html(reply_html).into_response())
 }

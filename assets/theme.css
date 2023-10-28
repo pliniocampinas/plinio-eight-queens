@@ -1,0 +1,24 @@
+body {
+  color: darkslategray;
+}
+
+.table {
+  border: 1px solid darkslategray;
+  padding: 2px;
+  display: flex;
+  flex-direction: column;
+  max-width: 260px;
+}
+
+.row {
+  border: 1px solid darkslategray;
+  padding: 4px;
+  display: flex;
+  gap: 4px;
+}
+
+.col {
+  border: 1px solid darkslategray;
+  padding: 8px;
+  width: 16px;
+}
