@@ -4,5 +4,5 @@ use askama::Template;
 #[template(path = "template.html")]
 pub struct TableSolution {
   pub header_text: String,
-  pub solutions: Vec<[isize; 8]>,
+  pub solutions: Vec<[[(bool, usize); 8]; 8]>,
 }

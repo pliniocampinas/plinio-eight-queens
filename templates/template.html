@@ -17,22 +17,21 @@
       <button id="solve-button">Solve!</button>
     </div>
 
-    {% for solution in solutions %}
+  {% for solution in solutions %}
     <div class="table">
-      {% for row in 0..8 %}
+    {% for row in solution %}
       <div class="row">
-        {% for col in 0..8 %}
-        <div class="col">
-          {% let has_queen = (solution[row] + 0) == col %}
-          {% if has_queen -%}
-            <img class="queen-icon" src="/_assets/chess-queen.svg" alt="Q">
-          {%- endif -%}
-        </div>
-        {% endfor %}
+      {% for col in row %}
+      <div class="col" dark="{{col.0}}">
+        {% if col.1 + 0 > 0 -%}
+          <img class="queen-icon" src="/_assets/chess-queen.svg" alt="Q">
+        {%- endif -%}
       </div>
       {% endfor %}
-    </div>
+      </div>
     {% endfor %}
+    </div>
+  {% endfor %}
     
   </div>
 

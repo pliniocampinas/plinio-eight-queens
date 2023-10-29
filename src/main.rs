@@ -78,14 +78,26 @@ async fn handle_main(query: Query<MainQuery>) -> impl IntoResponse {
     let mut results: Vec<MovesStack> = Vec::new();
     solve_queens(0, &mut moves_stack, &mut results, max_solutions);
 
-    let mut solutions: Vec<[isize; 8]> = Vec::new();
-    for r in results {
-        solutions.push(r.columns_positions);
+    let mut solutions: Vec<[[(bool,usize); 8]; 8]> = Vec::new();
+    for result in results {
+
+        let mut rows: [[(bool,usize); 8]; 8] = [[(false,0); 8]; 8];
+        for i in 0..8 { 
+            for j in 0..8 { 
+                let column_position = result.columns_positions[i] as usize;
+                if j == column_position {
+                    rows[i][j].1 = 1;
+                }
+                let is_dark_cell = j % 2 == i % 2;
+                rows[i][j].0 = is_dark_cell;
+            }
+        }
+        solutions.push(rows);
     }
 
     let template = TableSolution {
         header_text: String::from("Eight Queens"),
-        solutions: solutions
+        solutions: solutions,
     };
     let reply_html = template.render().unwrap();
     (StatusCode::OK, Html(reply_html).into_response())
