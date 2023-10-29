@@ -8,12 +8,14 @@ use queens_solver::{
 
 use axum::{
     extract::Path,
+    extract::Query,
     routing::get,
     http::{header, HeaderMap, StatusCode},
     response::{Html, IntoResponse},
     Router,
 };
 use askama::Template;
+use serde::Deserialize;
 use std::net::SocketAddr;
 use templates::TableSolution;
 
@@ -60,14 +62,30 @@ async fn table() -> String {
     print_table(&table)
 }
 
-async fn handle_main() -> impl IntoResponse {
+fn default_usize() -> usize {
+    1
+}
+
+#[derive(Deserialize)]
+struct MainQuery {
+    #[serde(default = "default_usize")]
+    solutions: usize,
+}
+
+async fn handle_main(query: Query<MainQuery>) -> impl IntoResponse {
+    let max_solutions = query.solutions;
     let mut moves_stack: queens_solver::MovesStack = queens_solver::MovesStack::new();
     let mut results: Vec<MovesStack> = Vec::new();
-    solve_queens(0, &mut moves_stack, &mut results);
+    solve_queens(0, &mut moves_stack, &mut results, max_solutions);
+
+    let mut solutions: Vec<[isize; 8]> = Vec::new();
+    for r in results {
+        solutions.push(r.columns_positions);
+    }
 
     let template = TableSolution {
         header_text: String::from("Eight Queens"),
-        columns_positions: results[0].columns_positions
+        solutions: solutions
     };
     let reply_html = template.render().unwrap();
     (StatusCode::OK, Html(reply_html).into_response())
@@ -76,7 +94,7 @@ async fn handle_main() -> impl IntoResponse {
 fn solve_and_fill_table(table: & mut [u8; 64]) {
     let mut moves_stack: queens_solver::MovesStack = queens_solver::MovesStack::new();
     let mut results: Vec<MovesStack> = Vec::new();
-    solve_queens(0, &mut moves_stack, &mut results);
+    solve_queens(0, &mut moves_stack, &mut results, 0);
     fill_table(table, &results[0]);
 
     println!("result_count {}", results.len());

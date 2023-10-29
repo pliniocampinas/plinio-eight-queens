@@ -9,12 +9,21 @@
 <body>
   <div class="app">
     <h1>{{ header_text }}</h1>
+    <div class="">
+      <label for="number-of-solutions">
+        <span>Number of solutions:</span>
+        <input type="number" name="number-of-solutions" id="number-of-solutions-input">
+      </label>
+      <button id="solve-button">Solve!</button>
+    </div>
+
+    {% for solution in solutions %}
     <div class="table">
       {% for row in 0..8 %}
       <div class="row">
         {% for col in 0..8 %}
         <div class="col">
-          {% let has_queen = (columns_positions[row] + 0) == col %}
+          {% let has_queen = (solution[row] + 0) == col %}
           {% if has_queen -%}
             <img class="queen-icon" src="/_assets/chess-queen.svg" alt="Q">
           {%- endif -%}
@@ -23,7 +32,24 @@
       </div>
       {% endfor %}
     </div>
+    {% endfor %}
+    
   </div>
+
+  <script>
+    document.querySelector('#number-of-solutions-input').value = 0
+
+    document.querySelector('#solve-button').addEventListener('click', () => {
+      let numberOfSolutions = document.querySelector('#number-of-solutions-input').value * 1
+
+      if(!numberOfSolutions) {
+        window.location = `/`
+        return
+      }
+
+      window.location = `/?solutions=${numberOfSolutions}`
+    })
+  </script>
 </body>
 
 </html>

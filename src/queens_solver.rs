@@ -32,7 +32,11 @@ pub fn fill_table(table: &mut [u8; 64], moves_stack: &MovesStack) {
   }
 }
 
-pub fn solve_queens(row: isize, moves_stack: &mut MovesStack, results: &mut Vec<MovesStack>) {
+pub fn solve_queens(row: isize, moves_stack: &mut MovesStack, results: &mut Vec<MovesStack>, max_results: usize) {
+  if results.len() == max_results {
+    return;
+  }
+
   if row == 8 {
     results.push(*moves_stack);
     return;
@@ -42,7 +46,7 @@ pub fn solve_queens(row: isize, moves_stack: &mut MovesStack, results: &mut Vec<
   while col < 8 {
     moves_stack.push(col);
     if is_valid_move(moves_stack) {
-      solve_queens(row + 1, moves_stack, results);
+      solve_queens(row + 1, moves_stack, results, max_results);
     }
     moves_stack.pop();
 
