@@ -1,6 +1,11 @@
 # plinio-eight-queens
 Writing an 8 queens solution in rust
 
+## Exemplos
+<span>
+<img src="https://github.com/pliniocampinas/plinio-eight-queens/blob/main/n-queens-print.png" alt="Print Eight Queens solution" style="width:280px;"/>
+</span>
+
 ### TODO
 
 - [x] Implement solution.
